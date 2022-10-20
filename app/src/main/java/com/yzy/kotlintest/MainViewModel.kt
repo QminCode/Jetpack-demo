@@ -11,6 +11,7 @@ import androidx.lifecycle.ViewModel
  * @version:
  */
 class MainViewModel(countReserved: Int) : ViewModel() {
+
     private val _counter = MutableLiveData<Int>()
     val counter: LiveData<Int>
         get() = _counter //在counter的get方法中返回_counter变量

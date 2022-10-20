@@ -14,4 +14,5 @@ class MainViewModelFactory(private val countReserved: Int) : ViewModelProvider.F
         //创建了MainViewModel 的实例
         return MainViewModel(countReserved) as T
     }
+
 }

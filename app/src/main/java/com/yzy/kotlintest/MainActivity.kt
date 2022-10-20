@@ -6,15 +6,22 @@ import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.service.notification.StatusBarNotification
+import android.util.Log
 import android.widget.TextView
 import androidx.core.content.edit
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.yzy.kotlintest.databinding.ActivityMainBinding
+import kotlin.concurrent.thread
 
 class MainActivity : AppCompatActivity() {
+
     lateinit var viewModel: MainViewModel
     lateinit var sp: SharedPreferences
+    //创建两个User对象
+    val userDao = AppDatabase.getDatabase(this).userDao()
+    val user1 = User("Tom", "Brady", 40)
+    val user2 = User("Tom", "Hanks", 63)
     val binding: ActivityMainBinding by lazy { ActivityMainBinding.inflate(layoutInflater) }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,11 +36,35 @@ class MainActivity : AppCompatActivity() {
         数据了
          */
         viewModel = ViewModelProvider(this, MainViewModelFactory(countReserved)).get(MainViewModel::class.java)
-        binding.plusOneBtn.setOnClickListener {
-            viewModel.plusOne()
+//        binding.plusOneBtn.setOnClickListener {
+//            viewModel.plusOne()
+//        }
+//        binding.clearBtn.setOnClickListener{
+//            viewModel.clear()
+//        }
+        binding.addDataBtn.setOnClickListener {
+            thread {
+                user1.id = userDao.insertUser(user1)
+                user2.id = userDao.insertUser(user2) //更新ID
+            }
         }
-        binding.clearBtn.setOnClickListener{
-            viewModel.clear()
+        binding.updateDataBtn.setOnClickListener {
+            thread {
+                user1.age = 42
+                userDao.updateUser(user1)
+            }
+        }
+        binding.deleteDataBtn.setOnClickListener {
+            thread {
+                userDao.deleteUserByLastName("Hanks")
+            }
+        }
+        binding.queryDataBtn.setOnClickListener {
+            thread {
+                for (user in userDao.loadAllUsers()) {
+                    Log.d("MainActivity", user.toString())
+                }
+            }
         }
         viewModel.counter.observe(this, Observer { count ->
             binding.infoText.text = count.toString()
