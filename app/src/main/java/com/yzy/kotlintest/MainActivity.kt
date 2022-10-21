@@ -11,7 +11,11 @@ import android.widget.TextView
 import androidx.core.content.edit
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.work.OneTimeWorkRequest
+import androidx.work.PeriodicWorkRequest
+import androidx.work.WorkManager
 import com.yzy.kotlintest.databinding.ActivityMainBinding
+import java.util.concurrent.TimeUnit
 import kotlin.concurrent.thread
 
 class MainActivity : AppCompatActivity() {
@@ -42,29 +46,36 @@ class MainActivity : AppCompatActivity() {
 //        binding.clearBtn.setOnClickListener{
 //            viewModel.clear()
 //        }
-        binding.addDataBtn.setOnClickListener {
-            thread {
-                user1.id = userDao.insertUser(user1)
-                user2.id = userDao.insertUser(user2) //更新ID
-            }
-        }
-        binding.updateDataBtn.setOnClickListener {
-            thread {
-                user1.age = 42
-                userDao.updateUser(user1)
-            }
-        }
-        binding.deleteDataBtn.setOnClickListener {
-            thread {
-                userDao.deleteUserByLastName("Hanks")
-            }
-        }
-        binding.queryDataBtn.setOnClickListener {
-            thread {
-                for (user in userDao.loadAllUsers()) {
-                    Log.d("MainActivity", user.toString())
-                }
-            }
+//        binding.addDataBtn.setOnClickListener {
+//            thread {
+//                user1.id = userDao.insertUser(user1)
+//                user2.id = userDao.insertUser(user2) //更新ID
+//            }
+//        }
+//        binding.updateDataBtn.setOnClickListener {
+//            thread {
+//                user1.age = 42
+//                userDao.updateUser(user1)
+//            }
+//        }
+//        binding.deleteDataBtn.setOnClickListener {
+//            thread {
+//                userDao.deleteUserByLastName("Hanks")
+//            }
+//        }
+//        binding.queryDataBtn.setOnClickListener {
+//            thread {
+//                for (user in userDao.loadAllUsers()) {
+//                    Log.d("MainActivity", user.toString())
+//                }
+//            }
+//        }
+        binding.doWorkBtn.setOnClickListener{
+            //val request = OneTimeWorkRequest.Builder(SimpleWorker::class.java).build()//单次任务请求
+            val request = PeriodicWorkRequest.Builder(SimpleWorker::class.java, 15,
+                TimeUnit.MINUTES).build()
+            WorkManager.getInstance().enqueue(request)
+
         }
         viewModel.counter.observe(this, Observer { count ->
             binding.infoText.text = count.toString()
